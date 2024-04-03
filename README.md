@@ -1,2 +1,16 @@
 # dbm-intern-ranking
-This is the code to the dbm intern rankling for our weekly tournament ranking
+
+### Todo
+
+- Erfassen von:
+  - playername
+  - games played
+  - wins
+  - loses
+  - winrate
+  - ranking plaetze
+  - eventuell played chars
+- api
+- Database
+- User client
+- Graphana
