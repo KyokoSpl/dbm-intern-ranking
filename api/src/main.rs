@@ -18,11 +18,19 @@ fn index() -> Redirect {
 }
 //tauri-releases/google-keep-desktop/win64/1.18.0?msg=""
 #[get("/google-keep-desktop/<_platform>/<current_version>?<msg>")]
-fn google_keep_desktop_api(_platform: &str, current_version: &str, msg: Option<&str>) -> Value {
+fn google_keep_desktop_api(
+    _platform: &str,
+    current_version: &str,
+    msg: Option<&str>,
+) -> Result<Value, Status> {
     //Status::NoContent
-    json!({
+    if let Some(msg) = msg {
+        println!("{msg}");
+        return Err(Status::NoContent);
+    }
+    Ok(json!({
         "notes": "IT Works"
-    })
+    }))
 }
 #[launch]
 fn rocket() -> _ {
