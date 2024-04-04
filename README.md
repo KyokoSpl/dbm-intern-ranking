@@ -11,6 +11,7 @@
   - ranking plaetze
   - eventuell played chars
 - api
+  - post requests for each category
 - Database
 - User client
 - Graphana
