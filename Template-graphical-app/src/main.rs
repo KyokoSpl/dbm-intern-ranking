@@ -68,7 +68,7 @@ impl App for TextPaster {
             egui::TopBottomPanel::bottom("footer").show(ctx, |ui| {
                 ui.horizontal(|ui| {
                     ui.label("@JasonClarkAltmann");
-                    
+
                     ui.with_layout(
                         egui::Layout::from_main_dir_and_cross_align(
                             egui::Direction::RightToLeft,
