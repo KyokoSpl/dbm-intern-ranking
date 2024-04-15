@@ -11,68 +11,102 @@ const RANKING: Origin<'static> = uri!("/ranking");
 #[post("/playername?<msg>")]
 fn playername(msg: Option<&str>) -> Result<Value, Value> {
     if let Some(msg) = msg {
+        if msg.len() < 1 {
+            // Print an error if the length of msg is below 1
+            println!("Error: Message length is below 1");
+            return Err(json!({
+                "error": "Message length is below 1"
+            }));
+        }
         println!("{msg}");
         return Ok(json!({
-            "playername": msg
+            "Games Played": msg
         }));
     }
     Err(json!({
-        "notes": "It dosen't work"
+        "notes": "It doesn't work"
     }))
 }
 
 #[post("/games-played?<msg>")]
 fn gamesplayed(msg: Option<&str>) -> Result<Value, Value> {
     if let Some(msg) = msg {
+        if msg.len() < 1 {
+            // Print an error if the length of msg is below 1
+            println!("Error: Message length is below 1");
+            return Err(json!({
+                "error": "Message length is below 1"
+            }));
+        }
         println!("{msg}");
         return Ok(json!({
-            "Number of Games": msg
+            "Games Played": msg
         }));
     }
     Err(json!({
-        "notes": "It dosen't work"
+        "notes": "It doesn't work"
     }))
 }
 
 #[post("/wins?<msg>")]
 fn wins(msg: Option<&str>) -> Result<Value, Value> {
     if let Some(msg) = msg {
+        if msg.len() < 1 {
+            // Print an error if the length of msg is below 1
+            println!("Error: Message length is below 1");
+            return Err(json!({
+                "error": "Message length is below 1"
+            }));
+        }
         println!("{msg}");
         return Ok(json!({
             "wins": msg
         }));
     }
     Err(json!({
-        "notes": "It dosen't work"
+        "notes": "It doesn't work"
     }))
 }
 
 #[post("/loses?<msg>")]
 fn loses(msg: Option<&str>) -> Result<Value, Value> {
     if let Some(msg) = msg {
+        if msg.len() < 1 {
+            // Print an error if the length of msg is below 1
+            println!("Error: Message length is below 1");
+            return Err(json!({
+                "error": "Message length is below 1"
+            }));
+        }
         println!("{msg}");
         return Ok(json!({
             "loses": msg
         }));
     }
     Err(json!({
-        "notes": "It dosen't work"
+        "notes": "It doesn't work"
     }))
 }
 
 #[post("/chars?<msg>")]
 fn chars(msg: Option<&str>) -> Result<Value, Value> {
     if let Some(msg) = msg {
+        if msg.len() < 1 {
+            // Print an error if the length of msg is below 1
+            println!("Error: Message length is below 1");
+            return Err(json!({
+                "error": "Message length is below 1"
+            }));
+        }
         println!("{msg}");
         return Ok(json!({
-            "Played Character": msg
+            "chars": msg
         }));
     }
     Err(json!({
-        "notes": "It dosen't work"
+        "notes": "It doesn't work"
     }))
 }
-
 #[launch]
 fn rocket() -> _ {
     rocket::build()
