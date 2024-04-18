@@ -2,6 +2,7 @@
 
 use eframe::{egui, App, CreationContext, Frame};
 use egui::special_emojis::GITHUB;
+use reqwest::blocking::Client;
 
 struct DBMInternRanking {
     playername: String,
@@ -84,7 +85,38 @@ impl App for DBMInternRanking {
                 ui.add_space(10.0);
 
                 if ui.button("Send").clicked() {
-                    // put HTTP Post Method here
+                    let client = Client::new();
+                    let playername_url = client
+                        .post(&format!(
+                            "http://127.0.0.1:8000/ranking/playername?msg={}",
+                            self.playername
+                        ))
+                        .send();
+                    let games_url = client
+                        .post(&format!(
+                            "http://127.0.0.1:8000/ranking/games-played?msg={}",
+                            self.games_played
+                        ))
+                        .send();
+                    let wins = client
+                        .post(&format!(
+                            "http://127.0.0.1:8000/ranking/wins?msg= {}",
+                            self.wins
+                        ))
+                        .send();
+                    let loses_url = client
+                        .post(&format!(
+                            "https://127.0.0.1:8000/ranking/loses?msg= {}",
+                            self.loses
+                        ))
+                        .send();
+                    let charakter_url = client
+                        .post(&format!(
+                            "http://127.0.0.1:8000/ranking/chars?msg= {}",
+                            self.charakter
+                        ))
+                        .send();
+                    }
                 }
                 ui.add_space(10.0);
             });
