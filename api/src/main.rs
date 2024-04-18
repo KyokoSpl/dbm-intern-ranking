@@ -6,27 +6,79 @@ use rocket::serde::json::{json, Value};
 #[macro_use]
 extern crate rocket;
 
-const TAURI_RELEASES_PREFIX: Origin<'static> = uri!("/tauri-releases");
+const RANKING: Origin<'static> = uri!("/ranking");
 
-#[get("/")]
-fn index() -> Redirect {
-    let msg: Option<&str> = None;
-    Redirect::to(uri!(
-        TAURI_RELEASES_PREFIX,
-        google_keep_desktop_api("linux-x86_64", "v1.0.14", msg)
-    ))
+#[post("/playername?<msg>")]
+fn playername(msg: Option<&str>) -> Result<Value, Value> {
+    if let Some(msg) = msg {
+        println!("{msg}");
+        return Ok(json!({
+            "playername": msg
+        }));
+    }
+    Err(json!({
+        "notes": "It dosen't work"
+    }))
 }
-//tauri-releases/google-keep-desktop/win64/1.18.0?msg=""
-#[get("/google-keep-desktop/<_platform>/<current_version>?<msg>")]
-fn google_keep_desktop_api(_platform: &str, current_version: &str, msg: Option<&str>) -> Value {
-    //Status::NoContent
-    json!({
-        "notes": "IT Works"
-    })
+
+#[post("/games-played?<msg>")]
+fn gamesplayed(msg: Option<&str>) -> Result<Value, Value> {
+    if let Some(msg) = msg {
+        println!("{msg}");
+        return Ok(json!({
+            "Number of Games": msg
+        }));
+    }
+    Err(json!({
+        "notes": "It dosen't work"
+    }))
 }
+
+#[post("/wins?<msg>")]
+fn wins(msg: Option<&str>) -> Result<Value, Value> {
+    if let Some(msg) = msg {
+        println!("{msg}");
+        return Ok(json!({
+            "wins": msg
+        }));
+    }
+    Err(json!({
+        "notes": "It dosen't work"
+    }))
+}
+
+#[post("/loses?<msg>")]
+fn loses(msg: Option<&str>) -> Result<Value, Value> {
+    if let Some(msg) = msg {
+        println!("{msg}");
+        return Ok(json!({
+            "loses": msg
+        }));
+    }
+    Err(json!({
+        "notes": "It dosen't work"
+    }))
+}
+
+#[post("/chars?<msg>")]
+fn chars(msg: Option<&str>) -> Result<Value, Value> {
+    if let Some(msg) = msg {
+        println!("{msg}");
+        return Ok(json!({
+            "Played Character": msg
+        }));
+    }
+    Err(json!({
+        "notes": "It dosen't work"
+    }))
+}
+
 #[launch]
 fn rocket() -> _ {
     rocket::build()
-        .mount("/", routes![index])
-        .mount("/tauri-releases", routes![google_keep_desktop_api])
+        .mount(RANKING, routes![playername])
+        .mount(RANKING, routes![gamesplayed])
+        .mount(RANKING, routes![wins])
+        .mount(RANKING, routes![loses])
+        .mount(RANKING, routes![chars])
 }
