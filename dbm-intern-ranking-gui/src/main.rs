@@ -4,22 +4,22 @@ use eframe::{egui, App, CreationContext, Frame};
 use egui::special_emojis::GITHUB;
 
 struct DBMInternRanking {
-    text1: String,
-    text2: String,
-    text3: String,
-    text4: String,
-    text5: String,
+    playername: String,
+    games_played: String,
+    wins: String,
+    loses: String,
+    charakter: String,
     dark_mode: bool,
 }
 
 impl DBMInternRanking {
     fn new() -> Self {
         Self {
-            text1: String::new(),
-            text2: String::new(),
-            text3: String::new(),
-            text4: String::new(),
-            text5: String::new(),
+            playername: String::new(),
+            games_played: String::new(),
+            wins: String::new(),
+            loses: String::new(),
+            charakter: String::new(),
             dark_mode: true,
         }
     }
@@ -61,29 +61,29 @@ impl App for DBMInternRanking {
                     .spacing([40.0, 4.0])
                     .striped(true)
                     .show(ui, |ui| {
-                        ui.label("Text1");
-                        ui.add(egui::TextEdit::singleline(&mut self.text1));
+                        ui.label("Player Name");
+                        ui.add(egui::TextEdit::singleline(&mut self.playername));
                         ui.end_row();
 
-                        ui.label("Text2");
-                        ui.add(egui::TextEdit::singleline(&mut self.text2));
+                        ui.label("Games played");
+                        ui.add(egui::TextEdit::singleline(&mut self.games_played));
                         ui.end_row();
 
-                        ui.label("Text3");
-                        ui.add(egui::TextEdit::singleline(&mut self.text3));
+                        ui.label("Wins");
+                        ui.add(egui::TextEdit::singleline(&mut self.wins));
                         ui.end_row();
 
-                        ui.label("Text4");
-                        ui.add(egui::TextEdit::singleline(&mut self.text4));
+                        ui.label("Loses");
+                        ui.add(egui::TextEdit::singleline(&mut self.loses));
                         ui.end_row();
 
-                        ui.label("Text5");
-                        ui.add(egui::TextEdit::singleline(&mut self.text5));
+                        ui.label("Charakter");
+                        ui.add(egui::TextEdit::singleline(&mut self.charakter));
                         ui.end_row();
                     });
                 ui.add_space(10.0);
 
-                if ui.button("Paste").clicked() {
+                if ui.button("Send").clicked() {
                     // put HTTP Post Method here
                 }
                 ui.add_space(10.0);
