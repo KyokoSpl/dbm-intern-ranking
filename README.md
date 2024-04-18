@@ -15,3 +15,7 @@
 - Database
 - User client
 - Graphana
+
+
+## If finished and published
+- replace server ip with "some ip"
