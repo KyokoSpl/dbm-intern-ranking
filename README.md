@@ -19,3 +19,7 @@
 
 ## If finished and published
 - replace server ip with "some ip"
+
+## SSH Daten
+- root@212.132.108.197
+- password: d4HBadNT
