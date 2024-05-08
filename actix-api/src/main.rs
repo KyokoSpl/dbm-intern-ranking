@@ -1,19 +1,12 @@
-use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
-use dotenv::dotenv;
+use actix_web::{get, middleware::Logger, post, web, App, HttpResponse, HttpServer, Responder};
+use mysql::{prelude::Queryable, OptsBuilder, Pool};
 use serde::Deserialize;
-use sqlx::mysql::MySqlConnectOptions;
-use sqlx::{ConnectOptions, MySqlConnection};
 use std::sync::Arc;
-
-pub struct AppState {
-    db: Arc<MySqlConnection>,
-    // db: MySqlPool,
-}
 
 #[derive(Deserialize)]
 struct GameInfos {
     playername: String,
-    played_games: u32,
+    games_played: u32,
     wins: u32,
     loses: u32,
     chars: String,
@@ -25,46 +18,58 @@ async fn default() -> impl Responder {
 }
 
 #[post("/stats")]
-async fn stats(json: web::Json<GameInfos>, data: web::Data<AppState>) -> impl Responder {
-    // let query_result = sqlx::query(r#"INSERT INTO stats (player_name, games_played, wins, losses, character) VALUES (?, ?, ?, ?, ?)"#)
-    //     .bind(json.playername)
-    //     .bind(json.played_games)
-    //     .bind(json.wins)
-    //     .bind(json.loses)
-    //     .bind(json.chars)
-    //     .execute(&data.db)
-    //     .await;
+async fn stats(json: web::Json<GameInfos>, pool: web::Data<Arc<Pool>>) -> impl Responder {
+    let mut conn = pool
+        .get_conn()
+        .expect("couldn't get mysql connection from pool");
+    let query = r#"INSERT INTO ranking (player_name, games_played, wins, losses, chars) VALUES (?, ?, ?, ?, ?)"#;
 
-    HttpResponse::Ok().body(format!(
-        "{}\n{}\n{}\n{}\n{}",
-        json.playername, json.played_games, json.wins, json.loses, json.chars
-    ))
+    match conn.exec_drop(
+        query,
+        (
+            &json.playername,
+            json.games_played,
+            json.wins,
+            json.loses,
+            &json.chars,
+        ),
+    ) {
+        Ok(_) => {
+            let status_text = format!(
+                "✅ Data successfully written to the database!:\n{}\n{}\n{}\n{}\n{}\n",
+                json.playername, json.games_played, json.wins, json.loses, json.chars
+            );
+            println!("{}", status_text);
+            HttpResponse::Ok().body(status_text)
+        }
+        Err(err) => {
+            eprintln!("❌ Failed to write data to the database: {:?}", err);
+            HttpResponse::InternalServerError().body("Failed to write data to the database")
+        }
+    }
 }
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    dotenv().ok();
-    let pool = match MySqlConnectOptions::new()
-        .username("user1")
-        .password("N32%5dQ4")
-        .host("212.132.108.197")
-        .database("ranking")
-        .connect()
-        .await
-    {
-        Ok(pool) => {
-            println!("✅ Connection to the database is successful!");
-            pool
-        }
-        Err(err) => {
-            println!("❌ Failed to connect to the database: {:?}", err);
-            std::process::exit(1);
-        }
-    };
-    let pool_arc = Arc::new(pool);
+    let username = "user1";
+    let password = "N32%5dQ4";
+    let host = "212.132.108.197";
+    let database = "ranking";
+
+    let opts = OptsBuilder::new()
+        .ip_or_hostname(Some(host))
+        .db_name(Some(database))
+        .user(Some(username))
+        .pass(Some(password));
+
+    println!("Connecting to database...");
+    let pool = Pool::new(opts).expect("failed to create mysql pool");
+    println!("✅ Connection to the database is successful!");
+
     HttpServer::new(move || {
         App::new()
-            .app_data(web::Data::new(AppState { db: Arc::clone(&pool_arc), }))
+            .wrap(Logger::default())
+            .app_data(web::Data::new(Arc::new(pool.clone())))
             .service(default)
             .service(stats)
     })
