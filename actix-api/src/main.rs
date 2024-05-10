@@ -2,14 +2,15 @@ use actix_web::{get, middleware::Logger, post, web, App, HttpResponse, HttpServe
 use mysql::{prelude::Queryable, OptsBuilder, Pool};
 use serde::Deserialize;
 use std::sync::Arc;
+use dotenv::dotenv;
 
 #[derive(Deserialize)]
 struct GameInfos {
-    playername: String,
+    playername: u32,
+    chars: u32,
     games_played: u32,
     wins: u32,
     loses: u32,
-    chars: String,
 }
 
 #[get("/")]
@@ -22,22 +23,22 @@ async fn stats(json: web::Json<GameInfos>, pool: web::Data<Arc<Pool>>) -> impl R
     let mut conn = pool
         .get_conn()
         .expect("couldn't get mysql connection from pool");
-    let query = r#"INSERT INTO ranking (player_name, games_played, wins, losses, chars) VALUES (?, ?, ?, ?, ?)"#;
+    let query = r#"INSERT INTO game (player_id, fighter_id, games_played, wins, loses) VALUES (?, ?, ?, ?, ?)"#;
 
     match conn.exec_drop(
         query,
         (
             &json.playername,
+            &json.chars,
             json.games_played,
             json.wins,
             json.loses,
-            &json.chars,
         ),
     ) {
         Ok(_) => {
             let status_text = format!(
                 "✅ Data successfully written to the database!:\n{}\n{}\n{}\n{}\n{}\n",
-                json.playername, json.games_played, json.wins, json.loses, json.chars
+                json.playername, json.chars, json.games_played, json.wins, json.loses
             );
             println!("{}", status_text);
             HttpResponse::Ok().body(status_text)
@@ -49,12 +50,20 @@ async fn stats(json: web::Json<GameInfos>, pool: web::Data<Arc<Pool>>) -> impl R
     }
 }
 
+fn get_env_var(name: &str) -> String {
+    dotenv().ok();
+    match std::env::var(name) {
+        Ok(val) => val,
+        Err(_) => panic!("{} environment variable is not set", name),
+    }
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let username = "user1";
-    let password = "N32%5dQ4";
-    let host = "212.132.108.197";
-    let database = "ranking";
+    let username = get_env_var("MYSQL_USER");
+    let password = get_env_var("MYSQL_PASSWORD");
+    let host = get_env_var("MYSQL_HOST");
+    let database = get_env_var("MYSQL_DATABASE");
 
     let opts = OptsBuilder::new()
         .ip_or_hostname(Some(host))
