@@ -66,10 +66,10 @@ async fn main() -> std::io::Result<()> {
     let database = get_env_var("MYSQL_DATABASE");
 
     let opts = OptsBuilder::new()
-        .ip_or_hostname(Some(host))
-        .db_name(Some(database))
         .user(Some(username))
-        .pass(Some(password));
+        .pass(Some(password))
+        .ip_or_hostname(Some(host))
+        .db_name(Some(database));
 
     println!("Connecting to database...");
     let pool = Pool::new(opts).expect("failed to create mysql pool");

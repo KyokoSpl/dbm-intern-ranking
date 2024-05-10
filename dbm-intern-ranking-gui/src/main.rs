@@ -2,7 +2,7 @@
 
 use eframe::{egui, App, CreationContext, Frame};
 use egui::special_emojis::GITHUB;
-use reqwest::blocking::Client;
+use reqwest::{Error, StatusCode};
 
 struct DBMInternRanking {
     playername: String,
@@ -55,6 +55,23 @@ impl App for DBMInternRanking {
             });
         });
 
+
+
+
+
+        async fn fetch_players() -> Result<Vec<(String, usize)>, Error> {
+
+            let response = reqwest::get("http://212.132.108.197/player").await?;
+        
+            if response.status().is_success() {
+                let players  = response.json().await?;
+                Ok(players)
+            } else {
+                Err(Error::from(response.status()))
+            }
+        }
+        
+
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.vertical_centered(|ui| {
                 egui::Grid::new("my_grid")
@@ -63,7 +80,31 @@ impl App for DBMInternRanking {
                     .striped(true)
                     .show(ui, |ui| {
                         ui.label("Player Name");
-                        ui.add(egui::TextEdit::singleline(&mut self.playername));
+
+                        ui.horizontal(|ui| {
+                            async {
+                                match fetch_players().await {
+                                    Ok(players) => {
+
+                                        let player_names: Vec<&str> = players.iter().map(|(name, _)| name.as_str()).collect();
+
+                                        let player_ids: Vec<usize> = players.iter().map(|(_, id)| *id).collect();
+
+                                        let mut selected_player_id = 0;
+                                        ui.selectable_value(&mut selected_player_id, 0, "");
+
+                                        for (index, player_name) in player_names.iter().enumerate() {
+                                            ui.selectable_value(&mut selected_player_id, player_ids[index], *player_name);
+                                        }
+                                    }
+                                    Err(_) => {
+
+                                        ui.label("Failed to fetch player data");
+                                    }
+                                }
+                            };
+                        });
+        
                         ui.end_row();
 
                         ui.label("Games played");
@@ -85,37 +126,7 @@ impl App for DBMInternRanking {
                 ui.add_space(10.0);
 
                 if ui.button("Send").clicked() {
-                    let client = Client::new();
-                    let playername_url = client
-                        .post(&format!(
-                            "http://212.132.108.197:8000/ranking/playername?msg={}",
-                            self.playername
-                        ))
-                        .send();
-                    let games_url = client
-                        .post(&format!(
-                            "http://212.132.108.197:8000/ranking/games-played?msg={}",
-                            self.games_played
-                        ))
-                        .send();
-                    let wins = client
-                        .post(&format!(
-                            "http://212.132.108.197:8000/ranking/wins?msg= {}",
-                            self.wins
-                        ))
-                        .send();
-                    let loses_url = client
-                        .post(&format!(
-                            "http://212.132.108.197:8000/ranking/loses?msg= {}",
-                            self.loses
-                        ))
-                        .send();
-                    let charakter_url = client
-                        .post(&format!(
-                            "http://212.132.108.197:8000/ranking/chars?msg= {}",
-                            self.charakter
-                        ))
-                        .send();
+
                 }
                 ui.add_space(10.0);
             });
