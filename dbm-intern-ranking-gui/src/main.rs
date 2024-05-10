@@ -1,28 +1,52 @@
 #![windows_subsystem = "windows"]
 
+use std::collections::HashMap;
+use tokio;
 use eframe::{egui, App, CreationContext, Frame};
 use egui::special_emojis::GITHUB;
-use reqwest::{Error, StatusCode};
+use reqwest::Error;
+use serde::Deserialize;
+
+
+#[derive(Deserialize, Debug)]
+struct Player {
+    id: u32,
+    playername: String,
+}
 
 struct DBMInternRanking {
+    id: u32,
     playername: String,
     games_played: String,
     wins: String,
     loses: String,
     charakter: String,
     dark_mode: bool,
+    player_map: HashMap<String, u32>,
 }
 
 impl DBMInternRanking {
     fn new() -> Self {
         Self {
+            id: 0,
             playername: String::new(),
             games_played: String::new(),
             wins: String::new(),
             loses: String::new(),
             charakter: String::new(),
             dark_mode: true,
+            player_map: HashMap::new(),
         }
+    }
+    async fn get_players(&mut self) -> Result<(), Error> {
+        let response = reqwest::get("http://localhost:8080/player").await?;
+        let players: Vec<Player> = response.json().await?;
+
+        for player in players {
+            self.player_map.insert(player.playername, player.id);
+        }
+
+        Ok(())
     }
 }
 
@@ -56,22 +80,6 @@ impl App for DBMInternRanking {
         });
 
 
-
-
-
-        async fn fetch_players() -> Result<Vec<(String, usize)>, Error> {
-
-            let response = reqwest::get("http://212.132.108.197/player").await?;
-        
-            if response.status().is_success() {
-                let players  = response.json().await?;
-                Ok(players)
-            } else {
-                Err(Error::from(response.status()))
-            }
-        }
-        
-
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.vertical_centered(|ui| {
                 egui::Grid::new("my_grid")
@@ -80,31 +88,19 @@ impl App for DBMInternRanking {
                     .striped(true)
                     .show(ui, |ui| {
                         ui.label("Player Name");
-
-                        ui.horizontal(|ui| {
-                            async {
-                                match fetch_players().await {
-                                    Ok(players) => {
-
-                                        let player_names: Vec<&str> = players.iter().map(|(name, _)| name.as_str()).collect();
-
-                                        let player_ids: Vec<usize> = players.iter().map(|(_, id)| *id).collect();
-
-                                        let mut selected_player_id = 0;
-                                        ui.selectable_value(&mut selected_player_id, 0, "");
-
-                                        for (index, player_name) in player_names.iter().enumerate() {
-                                            ui.selectable_value(&mut selected_player_id, player_ids[index], *player_name);
-                                        }
-                                    }
-                                    Err(_) => {
-
-                                        ui.label("Failed to fetch player data");
+                        egui::ComboBox::from_id_source("player_dropdown")
+                            .selected_text(self.playername.clone())
+                            .show_ui(ui, |ui| {
+                                for (playername, id) in &self.player_map {
+                                    if ui.selectable_value(&mut self.playername, playername.clone(), playername).clicked() {
+                                        self.id = *id;
                                     }
                                 }
-                            };
-                        });
-        
+                            });
+                        ui.end_row();
+                        
+                        ui.label("Player Name OLD");
+                        ui.add(egui::TextEdit::singleline(&mut self.playername));
                         ui.end_row();
 
                         ui.label("Games played");
@@ -126,7 +122,7 @@ impl App for DBMInternRanking {
                 ui.add_space(10.0);
 
                 if ui.button("Send").clicked() {
-
+                    println!("{}\n{}\n{}\n{}\n{}\n{}", self.id, self.playername, self.games_played, self.wins, self.loses, self.charakter);
                 }
                 ui.add_space(10.0);
             });
@@ -163,17 +159,27 @@ impl App for DBMInternRanking {
     }
 }
 
-fn main() {
-    let app = DBMInternRanking::new();
+#[tokio::main]
+async fn main() -> Result<(), Error> {
+    let mut app = DBMInternRanking::new();
     let native_options = eframe::NativeOptions {
-        initial_window_size: Some(egui::vec2(295.0, 270.0)),
+        initial_window_size: Some(egui::vec2(310.0, 285.0)),
         ..Default::default()
     };
+
+    if let Err(e) = app.get_players().await {
+        eprintln!("Failed to get players: {}", e);
+    }
+
     let result = eframe::run_native(
         "DBMInternRanking",
         native_options,
         Box::new(move |_ctx: &CreationContext<'_>| Box::new(app)),
     );
 
-    result.unwrap_or_else(|e| eprintln!("Fehler beim Ausführen der Anwendung: {:?}", e));
+    if let Err(e) = result {
+        eprintln!("An error occurred: {}", e);
+    }
+
+    Ok(())
 }
