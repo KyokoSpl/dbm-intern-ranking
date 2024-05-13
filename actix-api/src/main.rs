@@ -1,11 +1,11 @@
 use actix_web::{middleware::Logger, web, App, HttpServer};
-use mysql::{OptsBuilder, Pool};
 use dotenv::dotenv;
+use mysql::{OptsBuilder, Pool};
 use std::sync::Arc;
 
-mod models;
 mod handlers;
-use handlers::{default, stats, player, fighter};
+mod models;
+use handlers::{default, fighter, player, stats};
 
 fn get_env_var(name: &str) -> String {
     dotenv().ok();
@@ -37,9 +37,12 @@ async fn main() -> std::io::Result<()> {
             .wrap(Logger::default())
             .app_data(web::Data::new(Arc::new(pool.clone())))
             .service(default)
-            .service(stats)
-            .service(player)
-            .service(fighter)
+            .service(
+                web::scope("/ranking")
+                    .service(stats)
+                    .service(player)
+                    .service(fighter),
+            )
     })
     .bind(("127.0.0.1", 8080))?
     .run()

@@ -3,7 +3,7 @@ use mysql::{prelude::Queryable, Pool};
 use serde_json::json;
 use std::sync::Arc;
 
-use crate::models::{GameInfos, PlayerData, FighterData};
+use crate::models::{FighterData, GameInfos, PlayerData};
 
 #[get("/")]
 async fn default() -> impl Responder {
@@ -36,8 +36,8 @@ async fn stats(json: web::Json<GameInfos>, pool: web::Data<Arc<Pool>>) -> impl R
             HttpResponse::Ok().body(status_text)
         }
         Err(err) => {
-            eprintln!("❌ Failed to write data to the database: {:?}", err);
-            HttpResponse::InternalServerError().body("Failed to write data to the database")
+            eprintln!("❌ Failed to write game data to the database: {:?}", err);
+            HttpResponse::InternalServerError().body("Failed to write game data to the database")
         }
     }
 }
@@ -49,15 +49,22 @@ async fn player(pool: web::Data<Arc<Pool>>) -> impl Responder {
         .expect("couldn't get mysql connection from pool");
     let query = r#"SELECT id, playername FROM player"#;
 
-    match conn.query_map(query, |(id, playername): (u32, String)| PlayerData { id, playername }) {
+    match conn.query_map(query, |(id, playername): (u32, String)| PlayerData {
+        id,
+        playername,
+    }) {
         Ok(players) => {
             let players_json = json!(&players);
             println!("{}", players_json);
             HttpResponse::Ok().json(players_json)
         }
         Err(err) => {
-            eprintln!("❌ Failed to retrieve data from the database: {:?}", err);
-            HttpResponse::InternalServerError().body("Failed to retrieve data from the database")
+            eprintln!(
+                "❌ Failed to retrieve player data from the database: {:?}",
+                err
+            );
+            HttpResponse::InternalServerError()
+                .body("Failed to retrieve player data from the database")
         }
     }
 }
@@ -67,17 +74,24 @@ async fn fighter(pool: web::Data<Arc<Pool>>) -> impl Responder {
     let mut conn = pool
         .get_conn()
         .expect("couldn't get mysql connection from pool");
-    let query = r#"SELECT id, fighter_name FROM fighter"#;
+    let query = r#"SELECT id, fightername FROM fighter"#;
 
-    match conn.query_map(query, |(id, fighter_name): (u32, String)| FighterData { id, fighter_name }) {
+    match conn.query_map(query, |(id, fightername): (u32, String)| FighterData {
+        id,
+        fightername,
+    }) {
         Ok(fighters) => {
             let fighters_json = json!(&fighters);
             println!("{}", fighters_json);
             HttpResponse::Ok().json(fighters_json)
         }
         Err(err) => {
-            eprintln!("❌ Failed to retrieve data from the database: {:?}", err);
-            HttpResponse::InternalServerError().body("Failed to retrieve data from the database")
+            eprintln!(
+                "❌ Failed to retrieve fighter data from the database: {:?}",
+                err
+            );
+            HttpResponse::InternalServerError()
+                .body("Failed to retrieve fighter data from the database")
         }
     }
 }
