@@ -87,29 +87,13 @@ impl DBMInternRanking {
 impl App for DBMInternRanking {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
         ctx.set_pixels_per_point(1.2);
-
-        if self.dark_mode {
-            ctx.set_visuals(egui::Visuals::dark());
-        } else {
-            ctx.set_visuals(egui::Visuals::light());
-        }
+        catppuccin_egui::set_theme(&ctx, catppuccin_egui::MOCHA);
 
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
             ui.horizontal(|ui| {
                 ui.heading("DBMInternRanking");
 
-                ui.with_layout(
-                    egui::Layout::from_main_dir_and_cross_align(
-                        egui::Direction::RightToLeft,
-                        egui::Align::RIGHT,
-                    ),
-                    |ui| {
-                        let button_text = if self.dark_mode { "🌙" } else { "🌞" };
-                        if ui.button(button_text).clicked() {
-                            self.dark_mode = !self.dark_mode;
-                        }
-                    },
-                );
+
             });
         });
 
@@ -257,7 +241,6 @@ impl App for DBMInternRanking {
 async fn main() -> Result<(), Error> {
     let mut app = DBMInternRanking::new();
     let native_options = eframe::NativeOptions {
-        initial_window_size: Some(egui::vec2(310.0, 285.0)),
         ..Default::default()
     };
 
