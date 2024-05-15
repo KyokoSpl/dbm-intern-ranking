@@ -20,7 +20,7 @@ async fn stats(json: web::Json<GameInfos>, pool: web::Data<Arc<Pool>>) -> impl R
     match conn.exec_drop(
         query,
         (
-            &json.playername,
+            &json.player_name,
             &json.chars,
             json.games_played,
             json.wins,
@@ -30,7 +30,7 @@ async fn stats(json: web::Json<GameInfos>, pool: web::Data<Arc<Pool>>) -> impl R
         Ok(_) => {
             let status_text = format!(
                 "✅ Data successfully written to the database!:\n{}\n{}\n{}\n{}\n{}\n",
-                json.playername, json.chars, json.games_played, json.wins, json.loses
+                json.player_name, json.chars, json.games_played, json.wins, json.loses
             );
             println!("{}", status_text);
             HttpResponse::Ok().body(status_text)
@@ -47,11 +47,11 @@ async fn player(pool: web::Data<Arc<Pool>>) -> impl Responder {
     let mut conn = pool
         .get_conn()
         .expect("couldn't get mysql connection from pool");
-    let query = r#"SELECT id, playername FROM player"#;
+    let query = r#"SELECT id, player_name FROM player"#;
 
-    match conn.query_map(query, |(id, playername): (u32, String)| PlayerData {
+    match conn.query_map(query, |(id, player_name): (u32, String)| PlayerData {
         id,
-        playername,
+        player_name,
     }) {
         Ok(players) => {
             let players_json = json!(&players);
@@ -74,11 +74,11 @@ async fn fighter(pool: web::Data<Arc<Pool>>) -> impl Responder {
     let mut conn = pool
         .get_conn()
         .expect("couldn't get mysql connection from pool");
-    let query = r#"SELECT id, fightername FROM fighter"#;
+    let query = r#"SELECT id, fighter_name FROM fighter"#;
 
-    match conn.query_map(query, |(id, fightername): (u32, String)| FighterData {
+    match conn.query_map(query, |(id, fighter_name): (u32, String)| FighterData {
         id,
-        fightername,
+        fighter_name,
     }) {
         Ok(fighters) => {
             let fighters_json = json!(&fighters);

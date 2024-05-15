@@ -6,7 +6,6 @@ use reqwest::Error;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use tokio;
-
 #[derive(Deserialize, Debug)]
 struct Player {
     id: u32,
@@ -39,8 +38,6 @@ struct DBMInternRanking {
     games_played: String,
     wins: String,
     loses: String,
-
-    dark_mode: bool,
 }
 
 impl DBMInternRanking {
@@ -57,8 +54,6 @@ impl DBMInternRanking {
             games_played: String::new(),
             wins: String::new(),
             loses: String::new(),
-
-            dark_mode: true,
         }
     }
 
@@ -99,6 +94,13 @@ impl App for DBMInternRanking {
 
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.vertical_centered(|ui| {
+                egui::CollapsingHeader::new("Open me!")
+                .default_open(false)
+                .show(ui, |ui| {
+                    ui.label("This is a ui!");
+                    ui.label("The default font supports all latin and cyrillic characters (ИÅđ…), common math symbols (∫√∞²⅓…), and many emojis (💓🌟🖩…).")
+                    .on_hover_text("Why are you hovering me? ;(");
+                });
                 egui::Grid::new("my_grid")
                     .num_columns(2)
                     .spacing([40.0, 4.0])
@@ -203,6 +205,7 @@ impl App for DBMInternRanking {
                     );
                 }
                 ui.add_space(10.0);
+
             });
 
             egui::TopBottomPanel::bottom("footer").show(ctx, |ui| {
