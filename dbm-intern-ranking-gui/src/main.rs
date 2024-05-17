@@ -1,7 +1,7 @@
 #![windows_subsystem = "windows"]
 
 use eframe::{egui, App, CreationContext, Frame};
-use egui::special_emojis::GITHUB;
+use egui::{special_emojis::GITHUB, RichText, ViewportBuilder};
 use reqwest::Error;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -20,7 +20,11 @@ struct Fighter {
 #[derive(Deserialize, Serialize, Debug)]
 struct Game {
     player_id: u32,
-    fighter_id: u32,
+    first_fighter_id: u32,
+    second_fighter_id: u32,
+    third_fighter_id: u32,
+    fourth_fighter_id: u32,
+    fifth_fighter_id: u32,
     wins: u32,
     loses: u32
 }
@@ -30,8 +34,21 @@ struct DBMInternRanking {
     player_name: String,
     player_map: HashMap<u32, String>,
 
-    fighter_id: u32,
-    fighter_name: String,
+    first_fighter_id: u32,
+    first_fighter_name: String,
+
+    second_fighter_id: u32,
+    second_fighter_name: String,
+
+    third_fighter_id: u32,
+    third_fighter_name: String,
+
+    fourth_fighter_id: u32,
+    fourth_fighter_name: String,
+
+    fifth_fighter_id: u32,
+    fifth_fighter_name: String,
+
     fighter_map: HashMap<u32, String>,
 
     wins: String,
@@ -45,8 +62,21 @@ impl DBMInternRanking {
             player_name: String::new(),
             player_map: HashMap::new(),
 
-            fighter_id: 0,
-            fighter_name: String::new(),
+            first_fighter_id: 0,
+            first_fighter_name: String::new(),
+
+            second_fighter_id: 0,
+            second_fighter_name: String::new(),
+
+            third_fighter_id: 0,
+            third_fighter_name: String::new(),
+
+            fourth_fighter_id: 0,
+            fourth_fighter_name: String::new(),
+
+            fifth_fighter_id: 0,
+            fifth_fighter_name: String::new(),
+
             fighter_map: HashMap::new(),
 
             wins: String::new(),
@@ -78,8 +108,8 @@ impl DBMInternRanking {
 
 impl App for DBMInternRanking {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
-        ctx.set_pixels_per_point(1.2);
-        catppuccin_egui::set_theme(&ctx, catppuccin_egui::MOCHA);
+        ctx.set_pixels_per_point(1.4);
+        // catppuccin_egui::set_theme(&ctx, catppuccin_egui::MOCHA);
 
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
             ui.horizontal(|ui| {
@@ -91,19 +121,12 @@ impl App for DBMInternRanking {
 
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.vertical_centered(|ui| {
-                egui::CollapsingHeader::new("Open me!")
-                .default_open(false)
-                .show(ui, |ui| {
-                    ui.label("This is a ui!");
-                    ui.label("The default font supports all latin and cyrillic characters (ИÅđ…), common math symbols (∫√∞²⅓…), and many emojis (💓🌟🖩…).")
-                    .on_hover_text("Why are you hovering me? ;(");
-                });
                 egui::Grid::new("my_grid")
                     .num_columns(2)
                     .spacing([40.0, 4.0])
                     .striped(true)
                     .show(ui, |ui| {
-                        ui.label("Player Name");
+                        ui.label("Player *");
                         egui::ComboBox::from_id_source("player_dropdown")
                             .selected_text(self.player_name.clone())
                             .show_ui(ui, |ui| {
@@ -122,20 +145,96 @@ impl App for DBMInternRanking {
                             });
                         ui.end_row();
 
-                        ui.label("Fighter Name");
-                        egui::ComboBox::from_id_source("fighter_dropdown")
-                            .selected_text(self.fighter_name.clone())
+                        ui.label("1. Fighter *");
+                        egui::ComboBox::from_id_source("first_fighter_dropdown")
+                            .selected_text(self.first_fighter_name.clone())
                             .show_ui(ui, |ui| {
                                 for (fighter_id, fighter_name) in &self.fighter_map {
                                     if ui
                                         .selectable_value(
-                                            &mut self.fighter_name,
+                                            &mut self.first_fighter_name,
                                             fighter_name.clone(),
                                             fighter_name,
                                         )
                                         .clicked()
                                     {
-                                        self.fighter_id = *fighter_id;
+                                        self.first_fighter_id = *fighter_id;
+                                    }
+                                }
+                            });
+                        ui.end_row();
+
+                        ui.label("2. Fighter");
+                        egui::ComboBox::from_id_source("second_fighter_dropdown")
+                            .selected_text(self.second_fighter_name.clone())
+                            .show_ui(ui, |ui| {
+                                for (fighter_id, fighter_name) in &self.fighter_map {
+                                    if ui
+                                        .selectable_value(
+                                            &mut self.second_fighter_name,
+                                            fighter_name.clone(),
+                                            fighter_name,
+                                        )
+                                        .clicked()
+                                    {
+                                        self.second_fighter_id = *fighter_id;
+                                    }
+                                }
+                            });
+                        ui.end_row();
+
+                        ui.label("3. Fighter");
+                        egui::ComboBox::from_id_source("third_fighter_dropdown")
+                            .selected_text(self.third_fighter_name.clone())
+                            .show_ui(ui, |ui| {
+                                for (fighter_id, fighter_name) in &self.fighter_map {
+                                    if ui
+                                        .selectable_value(
+                                            &mut self.third_fighter_name,
+                                            fighter_name.clone(),
+                                            fighter_name,
+                                        )
+                                        .clicked()
+                                    {
+                                        self.third_fighter_id = *fighter_id;
+                                    }
+                                }
+                            });
+                        ui.end_row();
+
+                        ui.label("4. Fighter");
+                        egui::ComboBox::from_id_source("fourth_fighter_dropdown")
+                            .selected_text(self.fourth_fighter_name.clone())
+                            .show_ui(ui, |ui| {
+                                for (fighter_id, fighter_name) in &self.fighter_map {
+                                    if ui
+                                        .selectable_value(
+                                            &mut self.fourth_fighter_name,
+                                            fighter_name.clone(),
+                                            fighter_name,
+                                        )
+                                        .clicked()
+                                    {
+                                        self.fourth_fighter_id = *fighter_id;
+                                    }
+                                }
+                            });
+                        ui.end_row();
+
+                        ui.label("5. Fighter");
+                        egui::ComboBox::from_id_source("fifth_fighter_dropdown")
+                            .selected_text(self.fifth_fighter_name.clone())
+                            .show_ui(ui, |ui| {
+                                for (fighter_id, fighter_name) in &self.fighter_map {
+                                    if ui
+                                        .selectable_value(
+                                            &mut self.fifth_fighter_name,
+                                            fighter_name.clone(),
+                                            fighter_name,
+                                        )
+                                        .clicked()
+                                    {
+                                        self.fifth_fighter_id = *fighter_id;
                                     }
                                 }
                             });
@@ -149,20 +248,31 @@ impl App for DBMInternRanking {
                         ui.add(egui::TextEdit::singleline(&mut self.loses));
                         ui.end_row();
                     });
+                ui.add_space(5.0);
+                ui.label(RichText::new("* required").small().weak());
                 ui.add_space(10.0);
 
-                if ui.button("Send").clicked() {
+                if ui.button(RichText::new("    Send    ").heading()).clicked() {
                     let player_id = self.player_id;
-                    let fighter_id = self.fighter_id;
+                    let first_fighter_id = self.first_fighter_id;
+                    let second_fighter_id = self.second_fighter_id;
+                    let third_fighter_id = self.third_fighter_id;
+                    let fourth_fighter_id = self.fourth_fighter_id;
+                    let fifth_fighter_id = self.fifth_fighter_id;
                     let wins = self.wins.parse().unwrap_or(0);
                     let loses = self.loses.parse().unwrap_or(0);
                 
                     let _ = tokio::spawn(async move {
                         let game = Game {
                             player_id,
-                            fighter_id,
+                            first_fighter_id,
+                            second_fighter_id,
+                            third_fighter_id,
+                            fourth_fighter_id,
+                            fifth_fighter_id,
                             wins,
-                            loses,
+                            loses
+                        
                         };
                 
                         let client = reqwest::Client::new();
@@ -176,7 +286,7 @@ impl App for DBMInternRanking {
                                 if response.status().is_success() {
                                     println!("Game posted successfully");
                                 } else {
-                                    eprintln!("Failed to post game: {}", response.status());
+                                    eprintln!("Could not post game: {}", response.status());
                                 }
                             }
                             Err(e) => {
@@ -184,18 +294,25 @@ impl App for DBMInternRanking {
                             }
                         }
                     });
+                    
                     println!(
-                        "player_id: {}\nplayer_name: {}\nfighter_id: {}\nfighter_name: {}\nwins: {}\nloses: {}\n",
+                        "player_id: {}\nplayer_name: {}\nfirst_fighter_id: {}\nfirst_fighter_name: {}\nsecond_fighter_id: {}\nsecond_fighter_name: {}\nthird_fighter_id: {}\nthird_fighter_name: {}\nfourth_fighter_id: {}\nfourth_fighter_name: {}\nfifth_fighter_id: {}\nfifth_fighter_name: {}\nwins: {}\nloses: {}\n",
                         self.player_id,
                         self.player_name,
-                        self.fighter_id,
-                        self.fighter_name,
+                        self.first_fighter_id,
+                        self.first_fighter_name,
+                        self.second_fighter_id,
+                        self.second_fighter_name,
+                        self.third_fighter_id,
+                        self.third_fighter_name,
+                        self.fourth_fighter_id,
+                        self.fourth_fighter_name,
+                        self.fifth_fighter_id,
+                        self.fifth_fighter_name,
                         self.wins,
                         self.loses,
                     );
                 }
-                ui.add_space(10.0);
-
             });
 
             egui::TopBottomPanel::bottom("footer").show(ctx, |ui| {
@@ -234,6 +351,11 @@ impl App for DBMInternRanking {
 async fn main() -> Result<(), Error> {
     let mut app = DBMInternRanking::new();
     let native_options = eframe::NativeOptions {
+        viewport: ViewportBuilder {
+            inner_size: Some(egui::Vec2::new(350.0, 430.0)),
+            min_inner_size: Some(egui::Vec2::new(349.0, 429.0)),
+            ..Default::default()
+        },
         ..Default::default()
     };
 
@@ -257,3 +379,4 @@ async fn main() -> Result<(), Error> {
 
     Ok(())
 }
+

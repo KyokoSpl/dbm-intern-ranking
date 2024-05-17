@@ -5,7 +5,7 @@ use std::sync::Arc;
 
 mod handlers;
 mod models;
-use handlers::{default, fighter, player, stats};
+use handlers::{default, fighter, game, player};
 
 fn get_env_var(name: &str) -> String {
     dotenv().ok();
@@ -42,7 +42,7 @@ async fn main() -> std::io::Result<()> {
             .service(default)
             .service(
                 web::scope("/ranking")
-                    .service(stats)
+                    .service(game)
                     .service(player)
                     .service(fighter),
             )
