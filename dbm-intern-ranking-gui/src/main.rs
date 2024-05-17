@@ -21,7 +21,6 @@ struct Fighter {
 struct Game {
     player_id: u32,
     fighter_id: u32,
-    games_played: u32,
     wins: u32,
     loses: u32
 }
@@ -35,7 +34,6 @@ struct DBMInternRanking {
     fightername: String,
     fighter_map: HashMap<u32, String>,
 
-    games_played: String,
     wins: String,
     loses: String,
 }
@@ -51,7 +49,6 @@ impl DBMInternRanking {
             fightername: String::new(),
             fighter_map: HashMap::new(),
 
-            games_played: String::new(),
             wins: String::new(),
             loses: String::new(),
         }
@@ -144,10 +141,6 @@ impl App for DBMInternRanking {
                             });
                         ui.end_row();
 
-                        ui.label("Games Played");
-                        ui.add(egui::TextEdit::singleline(&mut self.games_played));
-                        ui.end_row();
-
                         ui.label("Wins");
                         ui.add(egui::TextEdit::singleline(&mut self.wins));
                         ui.end_row();
@@ -161,7 +154,6 @@ impl App for DBMInternRanking {
                 if ui.button("Send").clicked() {
                     let player_id = self.player_id;
                     let fighter_id = self.fighter_id;
-                    let games_played = self.games_played.parse().unwrap_or(0);
                     let wins = self.wins.parse().unwrap_or(0);
                     let loses = self.loses.parse().unwrap_or(0);
                 
@@ -169,7 +161,6 @@ impl App for DBMInternRanking {
                         let game = Game {
                             player_id,
                             fighter_id,
-                            games_played,
                             wins,
                             loses,
                         };
@@ -194,12 +185,11 @@ impl App for DBMInternRanking {
                         }
                     });
                     println!(
-                        "player_id: {}\nplayername: {}\nfighter_id: {}\nfightername: {}\ngames_played: {}\nwins: {}\nloses: {}\n",
+                        "player_id: {}\nplayername: {}\nfighter_id: {}\nfightername: {}\nwins: {}\nloses: {}\n",
                         self.player_id,
                         self.playername,
                         self.fighter_id,
                         self.fightername,
-                        self.games_played,
                         self.wins,
                         self.loses,
                     );

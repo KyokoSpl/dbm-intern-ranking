@@ -5,7 +5,6 @@ use serde::Serialize;
 pub struct GameInfos {
     pub player_name: u32,
     pub chars: u32,
-    pub games_played: u32,
     pub wins: u32,
     pub loses: u32
 }
