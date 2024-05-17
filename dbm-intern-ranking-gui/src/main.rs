@@ -9,13 +9,13 @@ use tokio;
 #[derive(Deserialize, Debug)]
 struct Player {
     id: u32,
-    playername: String,
+    player_name: String,
 }
 
 #[derive(Deserialize, Debug)]
 struct Fighter {
     id: u32,
-    fightername: String,
+    fighter_name: String,
 }
 #[derive(Deserialize, Serialize, Debug)]
 struct Game {
@@ -27,11 +27,11 @@ struct Game {
 
 struct DBMInternRanking {
     player_id: u32,
-    playername: String,
+    player_name: String,
     player_map: HashMap<u32, String>,
 
     fighter_id: u32,
-    fightername: String,
+    fighter_name: String,
     fighter_map: HashMap<u32, String>,
 
     wins: String,
@@ -42,11 +42,11 @@ impl DBMInternRanking {
     fn new() -> Self {
         Self {
             player_id: 0,
-            playername: String::new(),
+            player_name: String::new(),
             player_map: HashMap::new(),
 
             fighter_id: 0,
-            fightername: String::new(),
+            fighter_name: String::new(),
             fighter_map: HashMap::new(),
 
             wins: String::new(),
@@ -59,7 +59,7 @@ impl DBMInternRanking {
         let players: Vec<Player> = response.json().await?;
 
         for player in players {
-            self.player_map.insert(player.id, player.playername);
+            self.player_map.insert(player.id, player.player_name);
         }
 
         Ok(())
@@ -69,7 +69,7 @@ impl DBMInternRanking {
         let response = reqwest::get("http://localhost:8080/ranking/fighter").await?;
         let fighters: Vec<Fighter> = response.json().await?;
         for fighter in fighters {
-            self.fighter_map.insert(fighter.id, fighter.fightername);
+            self.fighter_map.insert(fighter.id, fighter.fighter_name);
         }
 
         Ok(())
@@ -105,14 +105,14 @@ impl App for DBMInternRanking {
                     .show(ui, |ui| {
                         ui.label("Player Name");
                         egui::ComboBox::from_id_source("player_dropdown")
-                            .selected_text(self.playername.clone())
+                            .selected_text(self.player_name.clone())
                             .show_ui(ui, |ui| {
-                                for (player_id, playername) in &self.player_map {
+                                for (player_id, player_name) in &self.player_map {
                                     if ui
                                         .selectable_value(
-                                            &mut self.playername,
-                                            playername.clone(),
-                                            playername,
+                                            &mut self.player_name,
+                                            player_name.clone(),
+                                            player_name,
                                         )
                                         .clicked()
                                     {
@@ -124,14 +124,14 @@ impl App for DBMInternRanking {
 
                         ui.label("Fighter Name");
                         egui::ComboBox::from_id_source("fighter_dropdown")
-                            .selected_text(self.fightername.clone())
+                            .selected_text(self.fighter_name.clone())
                             .show_ui(ui, |ui| {
-                                for (fighter_id, fightername) in &self.fighter_map {
+                                for (fighter_id, fighter_name) in &self.fighter_map {
                                     if ui
                                         .selectable_value(
-                                            &mut self.fightername,
-                                            fightername.clone(),
-                                            fightername,
+                                            &mut self.fighter_name,
+                                            fighter_name.clone(),
+                                            fighter_name,
                                         )
                                         .clicked()
                                     {
@@ -185,11 +185,11 @@ impl App for DBMInternRanking {
                         }
                     });
                     println!(
-                        "player_id: {}\nplayername: {}\nfighter_id: {}\nfightername: {}\nwins: {}\nloses: {}\n",
+                        "player_id: {}\nplayer_name: {}\nfighter_id: {}\nfighter_name: {}\nwins: {}\nloses: {}\n",
                         self.player_id,
-                        self.playername,
+                        self.player_name,
                         self.fighter_id,
-                        self.fightername,
+                        self.fighter_name,
                         self.wins,
                         self.loses,
                     );
