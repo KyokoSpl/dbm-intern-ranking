@@ -1,25 +1,20 @@
 # dbm-intern-ranking
 
-### Todo
+### Roadmap:
+- add more stuff to grafana
+- Android Client
 
-- Erfassen von:
-  - playername
-  - games played
-  - wins
-  - loses
-  - winrate
-  - ranking plaetze
-  - eventuell played chars
-- api
-  - post requests for each category
-- Database
-- User client
-- Graphana
+# Installation:
+### Windows:
+- Download .exe von [Releases](https://github.com/KyokoSpl/dbm-intern-ranking/releases/tag/1.0.0) und ausführen
 
 
-## If finished and published
-- replace server ip with "some ip"
+### Linux:
+- Download Binary Datei von [Releases](https://github.com/KyokoSpl/dbm-intern-ranking/releases/tag/1.0.0) und ausführen
 
-## SSH Daten
-- root@212.132.108.197
-- password: d4HBadNT
+### Manually
+````sh
+git clone https://github.com/KyokoSpl/dbm-intern-ranking
+cd dbm-inter-ranking/dbm-intern-ranking-gui/
+cargo run
+````

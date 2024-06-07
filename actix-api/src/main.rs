@@ -15,6 +15,7 @@ fn get_env_var(name: &str) -> String {
     }
 }
 
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "debug");
@@ -47,7 +48,7 @@ async fn main() -> std::io::Result<()> {
                     .service(fighter),
             )
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind(("someurl", 8000))?
     .run()
     .await
 }

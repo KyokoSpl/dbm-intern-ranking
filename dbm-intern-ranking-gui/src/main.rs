@@ -85,7 +85,7 @@ impl DBMInternRanking {
     }
 
     async fn get_players(&mut self) -> Result<(), Error> {
-        let response = reqwest::get("http://localhost:8080/ranking/player").await?;
+        let response = reqwest::get("someurl").await?;
         let players: Vec<Player> = response.json().await?;
 
         for player in players {
@@ -96,7 +96,7 @@ impl DBMInternRanking {
     }
 
     async fn get_fighters(&mut self) -> Result<(), Error> {
-        let response = reqwest::get("http://localhost:8080/ranking/fighter").await?;
+        let response = reqwest::get("someurl").await?;
         let fighters: Vec<Fighter> = response.json().await?;
         for fighter in fighters {
             self.fighter_map.insert(fighter.id, fighter.fighter_name);
@@ -109,7 +109,7 @@ impl DBMInternRanking {
 impl App for DBMInternRanking {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
         ctx.set_pixels_per_point(1.4);
-        // catppuccin_egui::set_theme(&ctx, catppuccin_egui::MOCHA);
+        catppuccin_egui::set_theme(&ctx, catppuccin_egui::MOCHA);
 
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
             ui.horizontal(|ui| {
@@ -276,7 +276,7 @@ impl App for DBMInternRanking {
                         };
                 
                         let client = reqwest::Client::new();
-                        let response = client.post("http://localhost:8080/ranking/game")
+                        let response = client.post("someurl")
                             .json(&game)
                             .send()
                             .await;
