@@ -16,5 +16,8 @@
 ````sh
 git clone https://github.com/KyokoSpl/dbm-intern-ranking
 cd dbm-inter-ranking/dbm-intern-ranking-gui/
+````
+- Than replace Placeholder in .rs and .env files after that run
+````sh
 cargo run
 ````
