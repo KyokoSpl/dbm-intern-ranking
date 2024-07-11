@@ -1,25 +1,33 @@
-# TextPaster
+# DBM Ranking GUI
 
-TextPaster is a simple Rust application that provides a user interface for entering text and then "pasting" that text elsewhere.
+Rust application using Egui framework for registering Data of the DBM intern weekly Smash Tourney. 
 
 ## Functionality
 
-The application provides a text field for users to enter text. After entering the text, users can click the "Paste" button to "paste" the entered text elsewhere. The application uses the `Enigo` library to simulate keyboard inputs and paste the text.
+The Application provides multiple Dropdown menus for selecting the Discord username of the Player, up to 5 diffrent Charackter that the Player picked. It also provides 2 Textfields for the amount of Wins and Loses
 
-The application waits three seconds before it "pastes" the text after the user clicks the "Paste" button. This gives the user time to set the focus to the window or field where the text should be pasted.
+After filling out and klicking the send button the Application sends a Post request to an API Server.
 
 ## Usage
 
-To use the application, simply run the program and enter the text you want to "paste". Then click the "Paste" button and set the focus to the window or field where the text should be pasted within three seconds.
+Fill out all fields with the corresponding Player data and klick the send button
 
 ## Installation
 
-To install the application, clone the repository and build the program with `cargo build`. You will need Rust and Cargo on your system to build the program.
+To install the Software download the appropriate File for your Operating System from the [Download Page](https://github.com/KyokoSpl/dbm-intern-ranking/releases/tag/1.0.0) and Run it.
+To run the Programm you need to have rust installed.
 
+## Building from Source
+
+### Deps:
+- rust
+- cargo
+
+### how to do
+Download the source Code from the [Download Page](https://github.com/KyokoSpl/dbm-intern-ranking/releases/tag/1.0.0) unpack it than do the following:
 ```bash
-git clone https://github.com/JasonClarkAltmann/text-paster.git
-cd text-paster
-cargo build --release
-```
+cd dbm-intern-ranking/
+cargo build 
 
-The built program will then be in the `target/release` directory.
+```
+If you want to execute it immediately do `cargo run` instead of `cargo build`
