@@ -5,7 +5,7 @@ use std::sync::Arc;
 
 mod handlers;
 mod models;
-use handlers::{default, fighter, game, player};
+use handlers::{addplayer, default, deletegame, deleteplayer, fighter, game};
 
 fn get_env_var(name: &str) -> String {
     dotenv().ok();
@@ -14,7 +14,6 @@ fn get_env_var(name: &str) -> String {
         Err(_) => panic!("{} environment variable is not set", name),
     }
 }
-
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -44,11 +43,13 @@ async fn main() -> std::io::Result<()> {
             .service(
                 web::scope("/ranking")
                     .service(game)
-                    .service(player)
+                    .service(addplayer)
+                    .service(deleteplayer)
+                    .service(deletegame)
                     .service(fighter),
             )
     })
-    .bind(("someurl", 8000))?
+    .bind(("localhost", 8000))?
     .run()
     .await
 }
