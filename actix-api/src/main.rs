@@ -5,7 +5,7 @@ use std::sync::Arc;
 
 mod handlers;
 mod models;
-use handlers::{addplayer, default, deletegame, deleteplayer, fighter, game};
+use handlers::{addplayer, base_stats, default, deletegame, deleteplayer, fighter, game};
 
 fn get_env_var(name: &str) -> String {
     dotenv().ok();
@@ -46,6 +46,7 @@ async fn main() -> std::io::Result<()> {
                     .service(addplayer)
                     .service(deleteplayer)
                     .service(deletegame)
+                    .service(base_stats)
                     .service(fighter),
             )
     })

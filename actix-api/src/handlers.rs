@@ -3,7 +3,7 @@ use mysql::{prelude::Queryable, Pool};
 use serde_json::json;
 use std::sync::Arc;
 
-use crate::models::{DelGame, FighterData, GameInfos, PlayerData, RemovePlayerData};
+use crate::models::{BaseStatsData, DelGame, FighterData, GameInfos, PlayerData, RemovePlayerData};
 
 #[get("/")]
 async fn default() -> impl Responder {
@@ -98,16 +98,36 @@ async fn deleteplayer(
     let mut conn = pool
         .get_conn()
         .expect("couldn't get mysql connection from pool");
-    let query = r#"DELETE FROM player WHERE id = ?"#;
+    let query2 = r#"DELETE FROM player WHERE id = ?"#;
+    let query = r#"DELETE FROM game WHERE player_id = ? "#;
 
     match conn.exec_drop(query, (json.id,)) {
         Ok(_) => {
             let status_text = format!(
-                "✅ Data successfully deleted from the database!:\n{}\n",
+                "✅ Data successfully deleted from the game table!:\n{}\n",
                 json.id
             );
             println!("{}", status_text);
-            HttpResponse::Ok().body(status_text)
+            match conn.exec_drop(query2, (json.id,)) {
+                Ok(_) => {
+                    let status_text = format!(
+                        "✅ Data successfully deleted from the player table:\n{}\n",
+                        json.id
+                    );
+                    println!("{}", status_text);
+                    HttpResponse::Ok().body(status_text)
+                }
+                Err(err) => {
+                    eprintln!(
+                        "❌ Failed to delete player data from the database:\n{:?}",
+                        err
+                    );
+                    HttpResponse::InternalServerError().body(format!(
+                        "Failed to write game data to the database:\n{:?}",
+                        err
+                    ))
+                }
+            }
         }
         Err(err) => {
             eprintln!(
@@ -145,6 +165,40 @@ async fn fighter(pool: web::Data<Arc<Pool>>) -> impl Responder {
             );
             HttpResponse::InternalServerError()
                 .body("Failed to retrieve fighter data from the database")
+        }
+    }
+}
+
+#[get("/base_stats/{player_id}")]
+async fn base_stats(path: web::Path<u64>, pool: web::Data<Arc<mysql::Pool>>) -> impl Responder {
+    let player_id = path.into_inner();
+
+    let mut conn = pool.get_conn().expect("Failed to get database connection");
+
+    let query = r#"
+        SELECT player_id, SUM(wins) AS wins, SUM(loses) AS loses 
+        FROM game 
+        WHERE player_id = ?
+        GROUP BY player_id
+    "#;
+
+    // Execute query with parameter
+    match conn.exec::<(u64, u32, u32), _, _>(query, (player_id,)) {
+        Ok(results) => {
+            let base_stats: Vec<BaseStatsData> = results
+                .into_iter()
+                .map(|(player_id, wins, loses)| BaseStatsData {
+                    player_id,
+                    wins,
+                    loses,
+                })
+                .collect();
+
+            HttpResponse::Ok().json(json!(&base_stats))
+        }
+        Err(err) => {
+            eprintln!("Database error: {:?}", err);
+            HttpResponse::InternalServerError().body("Error fetching stats")
         }
     }
 }

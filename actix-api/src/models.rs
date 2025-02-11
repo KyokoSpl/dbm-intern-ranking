@@ -29,3 +29,11 @@ pub struct FighterData {
     pub id: u32,
     pub fighter_name: String,
 }
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct BaseStatsData {
+    pub player_id: u64,
+    //pub fighter_id_1: u32,
+    pub wins: u32,
+    pub loses: u32,
+}
