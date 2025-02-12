@@ -31,7 +31,7 @@ add replace the `nginx.conf` in `/etc/nginx/` with the `nginx.conf` of this repo
 
 ```sh
 git clone https://github.com/KyokoSpl/dbm-intern-ranking
-cd dbm-inter-ranking/dbm-intern-ranking-gui/
+cd dbm-intern-ranking/dbm-intern-ranking-gui/
 ```
 
 - Than replace Placeholder in .rs and .env files after that run
