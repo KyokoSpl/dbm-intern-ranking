@@ -15,13 +15,16 @@ async fn game(json: web::Json<GameInfos>, pool: web::Data<Arc<Pool>>) -> impl Re
     let mut conn = pool
         .get_conn()
         .expect("couldn't get mysql connection from pool");
-    let query = r#"INSERT INTO game (player_id, wins, loses) VALUES (?, ?, ?)"#;
+    let query = r#"INSERT INTO game (player_id, fighter_id_1, wins, loses) VALUES (?, ?, ?, ?)"#;
 
-    match conn.exec_drop(query, (json.player_id, json.wins, json.loses)) {
+    match conn.exec_drop(
+        query,
+        (json.player_id, json.fighter_id_1, json.wins, json.loses),
+    ) {
         Ok(_) => {
             let status_text = format!(
-                "✅ Data successfully written to the database!:\n{}\n{}\n{}\n",
-                json.player_id, json.wins, json.loses
+                "✅ Data successfully written to the database!:\n{}\n{}\n{}\n{}\n",
+                json.player_id, json.fighter_id_1, json.wins, json.loses
             );
             println!("{}", status_text);
             HttpResponse::Ok().body(status_text)
