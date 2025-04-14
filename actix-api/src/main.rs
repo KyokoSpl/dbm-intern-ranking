@@ -41,7 +41,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(Arc::new(pool.clone())))
             .service(default)
             .service(
-                web::scope("/SOMEDB")
+                web::scope("/ranking")
                     .service(game)
                     .service(addplayer)
                     .service(deleteplayer)
@@ -59,9 +59,17 @@ async fn main() -> std::io::Result<()> {
 mod tests {
     use actix_web::{http::header::ContentType, test, App};
 
-    use crate::models::{PlayerData, RemovePlayerData};
+    use crate::models::{DelGame, GameInfos, PlayerData, RemovePlayerData};
 
     use super::*;
+    fn create_pool() -> Pool {
+        let opts = OptsBuilder::new()
+            .ip_or_hostname(Some("SOMEHOST"))
+            .db_name(Some("SOMEDB_TEST"))
+            .user(Some("SOMEUSER"))
+            .pass(Some("SOMEPW"));
+        Pool::new(opts).expect("failed to create mysql pool")
+    }
 
     #[test]
     async fn test_getenv() {
@@ -71,29 +79,22 @@ mod tests {
         let test_database = get_env_var("MYSQL_DATABASE");
 
         assert_eq!(test_user, "SOMEUSER");
-        assert_ne!(test_pw, "somepw");
+        assert_ne!(test_pw, "somepass");
         assert_eq!(test_host, "SOMEHOST");
         assert_eq!(test_database, "SOMEDB");
     }
 
     #[actix_web::test]
-    async fn test_index_get() {
-        let pool = Pool::new(
-            OptsBuilder::new()
-                .ip_or_hostname(Some("SOMEHOST"))
-                .db_name(Some("SOMEDB"))
-                .user(Some("SOMEUSER"))
-                .pass(Some("SOMEPW")),
-        )
-        .expect("failed to create mysql pool");
+    async fn test_base_stats_get() {
+        let pool = create_pool();
         let app = test::init_service(
             App::new()
                 .app_data(web::Data::new(Arc::new(pool.clone())))
-                .service(web::scope("/SOMEDB").service(base_stats)),
+                .service(web::scope("/ranking").service(base_stats)),
         )
         .await;
         let req = test::TestRequest::get()
-            .uri("/SOMEDB/base_stats/780712968320843819")
+            .uri("/ranking/base_stats/111111111")
             .insert_header(ContentType::plaintext())
             .to_request();
         let resp = test::call_service(&app, req).await;
@@ -101,28 +102,43 @@ mod tests {
     }
 
     #[actix_web::test]
-    async fn test_index_post() {
-        let pool = Pool::new(
-            OptsBuilder::new()
-                .ip_or_hostname(Some("SOMEHOST"))
-                .db_name(Some("SOMEDB"))
-                .user(Some("SOMEUSER"))
-                .pass(Some("SOMEPW")),
-        )
-        .expect("failed to create mysql pool");
+    async fn test_player_post() {
+        let pool = create_pool();
         let app = test::init_service(
             App::new()
                 .app_data(web::Data::new(Arc::new(pool.clone())))
-                .service(web::scope("/SOMEDB").service(addplayer)),
+                .service(web::scope("/ranking").service(addplayer)),
         )
         .await;
         let data = PlayerData {
-            id: 111111111,
-            player_name: "testuser".to_string(),
+            id: 333333333,
+            player_name: "testuser3".to_string(),
         };
 
         let req = test::TestRequest::post()
-            .uri("/SOMEDB/addplayer")
+            .uri("/ranking/addplayer")
+            .insert_header((actix_web::http::header::CONTENT_TYPE, "application/json"))
+            .set_json(&data)
+            .to_request();
+
+        let resp = test::call_service(&app, req).await;
+        println!("{:?}", resp.status());
+        assert!(resp.status().is_success());
+    }
+
+    #[actix_web::test]
+    async fn test_player_delete() {
+        let pool = create_pool();
+        let app = test::init_service(
+            App::new()
+                .app_data(web::Data::new(Arc::new(pool.clone())))
+                .service(web::scope("/ranking").service(deleteplayer)),
+        )
+        .await;
+        let data = RemovePlayerData { id: 333333333 };
+
+        let req = test::TestRequest::delete()
+            .uri("/ranking/deleteplayer")
             .insert_header((actix_web::http::header::CONTENT_TYPE, "application/json"))
             .set_json(&data)
             .to_request();
@@ -132,25 +148,44 @@ mod tests {
     }
 
     #[actix_web::test]
-    async fn test_index_delete() {
-        let pool = Pool::new(
-            OptsBuilder::new()
-                .ip_or_hostname(Some("SOMEHOST"))
-                .db_name(Some("SOMEDB"))
-                .user(Some("SOMEUSER"))
-                .pass(Some("SOMEPW")),
-        )
-        .expect("failed to create mysql pool");
+    async fn test_game_post() {
+        let pool = create_pool();
         let app = test::init_service(
             App::new()
                 .app_data(web::Data::new(Arc::new(pool.clone())))
-                .service(web::scope("/SOMEDB").service(deleteplayer)),
+                .service(web::scope("/ranking").service(game)),
         )
         .await;
-        let data = RemovePlayerData { id: 111111111 };
+        let data = GameInfos {
+            player_id: 111111111,
+            fighter_id_1: 99,
+            wins: 3,
+            loses: 1,
+        };
+
+        let req = test::TestRequest::post()
+            .uri("/ranking/game")
+            .insert_header((actix_web::http::header::CONTENT_TYPE, "application/json"))
+            .set_json(&data)
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+        println!("{:?}", resp.status());
+        assert!(resp.status().is_success());
+    }
+
+    #[actix_web::test]
+    async fn test_game_delete() {
+        let pool = create_pool();
+        let app = test::init_service(
+            App::new()
+                .app_data(web::Data::new(Arc::new(pool.clone())))
+                .service(web::scope("/ranking").service(deletegame)),
+        )
+        .await;
+        let data = DelGame { id: 936 };
 
         let req = test::TestRequest::delete()
-            .uri("/SOMEDB/deleteplayer")
+            .uri("/ranking/delgame")
             .insert_header((actix_web::http::header::CONTENT_TYPE, "application/json"))
             .set_json(&data)
             .to_request();

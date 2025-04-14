@@ -1,14 +1,14 @@
 use serde::Deserialize;
 use serde::Serialize;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct GameInfos {
     pub player_id: u64,
     pub fighter_id_1: u32,
     pub wins: u32,
     pub loses: u32,
 }
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct DelGame {
     pub id: u32,
 }
