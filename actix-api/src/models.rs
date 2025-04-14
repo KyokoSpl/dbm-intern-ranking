@@ -13,13 +13,13 @@ pub struct DelGame {
     pub id: u32,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct PlayerData {
     pub id: u64,
     pub player_name: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct RemovePlayerData {
     pub id: u64,
 }
