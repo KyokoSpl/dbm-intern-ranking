@@ -1,11 +1,15 @@
-use actix_web::{middleware::Logger, web, App, HttpServer};
+use actix_web::{
+    middleware::Logger,
+    web::{self, service},
+    App, HttpServer,
+};
 use dotenv::dotenv;
 use mysql::{OptsBuilder, Pool};
 use std::sync::Arc;
 
 mod handlers;
 mod models;
-use handlers::{addplayer, base_stats, default, deletegame, deleteplayer, fighter, game};
+use handlers::{addplayer, base_stats, default, deletegame, deleteplayer, fighter, game, player};
 
 fn get_env_var(name: &str) -> String {
     dotenv().ok();
@@ -47,7 +51,8 @@ async fn main() -> std::io::Result<()> {
                     .service(deleteplayer)
                     .service(deletegame)
                     .service(base_stats)
-                    .service(fighter),
+                    .service(fighter)
+                    .service(player),
             )
     })
     .bind(("localhost", 8000))?

@@ -172,6 +172,33 @@ async fn fighter(pool: web::Data<Arc<Pool>>) -> impl Responder {
     }
 }
 
+#[get("/player")]
+async fn player(pool: web::Data<Arc<Pool>>) -> impl Responder {
+    let mut conn = pool
+        .get_conn()
+        .expect("couldn't get mysql connection from pool");
+    let query = r#"SELECT id, player_name FROM player"#;
+
+    match conn.query_map(query, |(id, player_name): (u64, String)| PlayerData {
+        id,
+        player_name,
+    }) {
+        Ok(player_list) => {
+            let player_list_json = json!(&player_list);
+            println!("{}", player_list_json);
+            HttpResponse::Ok().json(player_list_json)
+        }
+        Err(err) => {
+            eprintln!(
+                "❌ Failed to retrieve player data from the database: {:?}",
+                err
+            );
+            HttpResponse::InternalServerError()
+                .body("Failed to retrieve player data from the database")
+        }
+    }
+}
+
 #[get("/base_stats/{player_id}")]
 async fn base_stats(path: web::Path<u64>, pool: web::Data<Arc<mysql::Pool>>) -> impl Responder {
     let player_id = path.into_inner();
